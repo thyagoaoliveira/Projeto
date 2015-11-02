@@ -11,7 +11,7 @@
 |
 */
 
-$factory->define(Projeto\User::class, function (Faker\Generator $faker) {
+$factory->define(Projeto\Entities\User::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->email,
@@ -20,7 +20,7 @@ $factory->define(Projeto\User::class, function (Faker\Generator $faker) {
     ];
 });
 
-$factory->define(Projeto\Client::class, function (Faker\Generator $faker) {
+$factory->define(Projeto\Entities\Client::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->name,
         'responsible' => $faker->name,

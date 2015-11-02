@@ -12,9 +12,9 @@ class ClientTableSeeder extends Seeder
     public function run()
     {
         // Para apagar dados da tabela.
-        \Projeto\Client::truncate();
+        \Projeto\Entities\Client::truncate();
 
         // Gerar 10 registros na tabela.
-        factory(\Projeto\Client::class, 10)->create();
+        factory(\Projeto\Entities\Client::class, 10)->create();
     }
 }
