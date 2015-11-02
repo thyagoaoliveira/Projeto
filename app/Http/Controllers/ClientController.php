@@ -5,6 +5,7 @@ namespace Projeto\Http\Controllers;
 use Illuminate\Http\Request;
 use Projeto\Entities\Client;
 use Projeto\Repositories\ClientRepositoryEloquent;
+use Projeto\Repositories\ClientRepository;
 
 use Projeto\Http\Requests;
 use Projeto\Http\Controllers\Controller;
@@ -16,7 +17,7 @@ class ClientController extends Controller
      *
      * @return Response
      */
-    public function index(ClientRepositoryEloquent $repository)
+    public function index(ClientRepository $repository)
     {
         return $repository->all();
     }

@@ -144,6 +144,7 @@ return [
         Projeto\Providers\AppServiceProvider::class,
         Projeto\Providers\EventServiceProvider::class,
         Projeto\Providers\RouteServiceProvider::class,
+        Projeto\Providers\ProjetoRepositoryProvider::class,
 
     ],
 
