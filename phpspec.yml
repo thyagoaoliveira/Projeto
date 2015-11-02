@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: Projeto
+        psr4_prefix: Projeto
+        src_path: app
