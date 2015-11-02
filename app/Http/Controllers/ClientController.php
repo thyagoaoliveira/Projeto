@@ -26,7 +26,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        //
+        // Não vai precisar por ora.
     }
 
     /**
@@ -37,7 +37,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return \Projeto\Client::create($request->all());
     }
 
     /**
