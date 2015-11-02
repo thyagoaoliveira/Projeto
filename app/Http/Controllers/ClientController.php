@@ -48,18 +48,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
+        return \Projeto\Client::find($id);
     }
 
     /**
@@ -71,7 +60,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // return \Projeto\Client::find($id)->update($request->all());
     }
 
     /**
@@ -82,6 +71,6 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        //
+        \Projeto\Client::find($id)->delete();
     }
 }
