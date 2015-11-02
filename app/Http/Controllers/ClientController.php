@@ -3,23 +3,30 @@
 namespace Projeto\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Projeto\Entities\Client;
-use Projeto\Repositories\ClientRepositoryEloquent;
 use Projeto\Repositories\ClientRepository;
-
-use Projeto\Http\Requests;
-use Projeto\Http\Controllers\Controller;
 
 class ClientController extends Controller
 {
+    /**
+     * [$repository description]
+     * 
+     * @var ClientRepository
+     */
+    private $repository;
+
+    public function __construct(ClientRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return Response
      */
-    public function index(ClientRepository $repository)
+    public function index()
     {
-        return $repository->all();
+        return $this->repository->all();
     }
 
     /**
@@ -40,7 +47,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        return Client::create($request->all());
+        return $this->repository->create($request->all());
     }
 
     /**
@@ -51,7 +58,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        return Client::find($id);
+        return $this->repository->find($id);
     }
 
     /**
@@ -63,7 +70,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // return Client::find($id)->update($request->all());
+        return $this->repository->find($id)->update($request->all());
     }
 
     /**
@@ -74,6 +81,6 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        Client::find($id)->delete();
+        $this->repository->find($id)->delete();
     }
 }
