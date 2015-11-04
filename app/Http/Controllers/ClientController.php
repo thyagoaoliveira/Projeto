@@ -4,6 +4,7 @@ namespace Projeto\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Projeto\Repositories\ClientRepository;
+use Projeto\Services\ClientService;
 
 class ClientController extends Controller
 {
@@ -14,9 +15,21 @@ class ClientController extends Controller
      */
     private $repository;
 
-    public function __construct(ClientRepository $repository)
+    /**
+     * [$service description]
+     * @var ClientService
+     */
+    private $service;
+
+    /**
+     * [__construct description]
+     * @param ClientRepository $repository [description]
+     * @param ClientService    $service    [description]
+     */
+    public function __construct(ClientRepository $repository, ClientService $service)
     {
         $this->repository = $repository;
+        $this->service = $service;
     }
 
     /**
@@ -47,7 +60,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->repository->create($request->all());
+        return $this->service->create($request->all());
     }
 
     /**
@@ -70,7 +83,8 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return $this->repository->find($id)->update($request->all());
+        $this->repository->update($request->all(), $id);
+        return $this->repository->find($id);
     }
 
     /**
