@@ -24,5 +24,6 @@ class ProjetoRepositoryProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(\Projeto\Repositories\ClientRepository::class, \Projeto\Repositories\ClientRepositoryEloquent::class);
+        $this->app->bind(\Projeto\Repositories\ProjectRepository::class, \Projeto\Repositories\ProjectRepositoryEloquent::class);
     }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class ClientTableSeeder extends Seeder
+class UserTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,9 +12,9 @@ class ClientTableSeeder extends Seeder
     public function run()
     {
         // Para apagar dados da tabela.
-        //\Projeto\Entities\Client::truncate();
+        //\Projeto\Entities\Project::truncate();
 
         // Gerar 10 registros na tabela.
-        factory(\Projeto\Entities\Client::class, 10)->create();
+        factory(\Projeto\Entities\User::class, 10)->create();
     }
 }
