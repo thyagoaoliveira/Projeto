@@ -2,11 +2,11 @@
 
 namespace Projeto\Services;
 
-use Projeto\Repositories\ProjectRepository;
-use Projeto\Validators\ProjectValidator;
+use Projeto\Repositories\ProjectNoteRepository;
+use Projeto\Validators\ProjectNoteValidator;
 use Prettus\Validator\Excetpions\ValidatorException;
 
-class ProjectService
+class ProjectNoteService
 {
 	/**
      * [$repository description]
@@ -25,7 +25,7 @@ class ProjectService
      * [__construct description]
      * @param ProjectRepository $repository [description]
      */
-    public function __construct(ProjectRepository $repository, ProjectValidator $validator)
+    public function __construct(ProjectNoteRepository $repository, ProjectNoteValidator $validator)
     {
         $this->repository = $repository;
         $this->validator = $validator;
