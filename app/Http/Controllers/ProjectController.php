@@ -17,14 +17,14 @@ class ProjectController extends Controller
 
     /**
      * [$service description]
-     * @var ClientService
+     * @var ProjectService
      */
     private $service;
 
     /**
      * [__construct description]
-     * @param ClientRepository $repository [description]
-     * @param ClientService    $service    [description]
+     * @param ProjectRepository $repository [description]
+     * @param ProjectService    $service    [description]
      */
     public function __construct(ProjectRepository $repository, ProjectService $service)
     {
@@ -39,7 +39,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return $this->repository->all();
+        return $this->repository->with('client')->all();
     }
 
     /**
@@ -69,9 +69,14 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function show($id)
+    /*public function show($id)
     {
         return $this->repository->find($id);
+    }*/
+
+    public function show($id)
+    {
+        return $this->repository->with('client')->find($id);
     }
 
     /**
