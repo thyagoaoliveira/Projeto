@@ -4,7 +4,7 @@ namespace Projeto\Services;
 
 use Projeto\Repositories\ClientRepository;
 use Projeto\Validators\ClientValidator;
-use Prettus\Validator\Excetpions\ValidatorException;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class ClientService
 {
