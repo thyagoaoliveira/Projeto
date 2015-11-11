@@ -30,7 +30,7 @@ return [
     ],
 
     'stripe' => [
-        'model'  => Projeto\User::class,
+        'model'  => Projeto\Entities\User::class,
         'key'    => '',
         'secret' => '',
     ],

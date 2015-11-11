@@ -2,7 +2,7 @@
 
 namespace Projeto\Http\Controllers\Auth;
 
-use Projeto\User;
+use Projeto\Entities\User;
 use Validator;
 use Projeto\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
