@@ -2,7 +2,9 @@
 
 namespace Projeto\Http\Controllers;
 
+use DB;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Repositories\ClientRepository;
 use Projeto\Services\ClientService;
 
@@ -71,7 +73,17 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        return $this->repository->find($id);
+        try {
+
+            return $this->repository->find($id);
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
     /**
@@ -82,9 +94,19 @@ class ClientController extends Controller
      * @return Response
      */
     public function update(Request $request, $id)
-    {
-        $this->repository->update($request->all(), $id);
-        return $this->repository->find($id);
+    {        
+        try {
+
+            $this->repository->update($request->all(), $id);
+            return $this->repository->find($id);
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }        
     }
 
     /**
@@ -95,6 +117,16 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        $this->repository->find($id)->delete();
+        try {
+
+            $this->repository->find($id)->delete();
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 }

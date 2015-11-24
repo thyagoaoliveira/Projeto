@@ -39,11 +39,13 @@ class ProjectService
     public function create(array $data)
     {
     	try {
-    		$this->validator->with($data)->passesOrFail();
+    		
+            $this->validator->with($data)->passesOrFail();
     		return $this->repository->create($data);
     	}
     	catch (ValidatorException $e) {
-    		return [
+    		
+            return [
     			'error' => true,
     			'message' => $e->getMessageBag()
     		];
@@ -53,11 +55,13 @@ class ProjectService
     public function update(array $data, $id)
     {
     	try {
-    		$this->validator->with($data)->passesOrFail();
+    		
+            $this->validator->with($data)->passesOrFail();
     		return $this->repository->update($data, $id);
     	}
     	catch (ValidatorException $e) {
-    		return [
+    		
+            return [
     			'error' => true,
     			'message' => $e->getMessageBag()
     		];

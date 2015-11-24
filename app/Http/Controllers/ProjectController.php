@@ -3,6 +3,7 @@
 namespace Projeto\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Repositories\ProjectRepository;
 use Projeto\Services\ProjectService;
 
@@ -39,7 +40,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return $this->repository->with('client')->all();
+        return $this->repository->with(['owner', 'client'])->all();
     }
 
     /**
@@ -69,14 +70,19 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return Response
      */
-    /*public function show($id)
-    {
-        return $this->repository->find($id);
-    }*/
-
     public function show($id)
     {
-        return $this->repository->with('client')->find($id);
+        try {
+            
+            return $this->repository->with(['owner', 'client'])->find($id);
+        
+        }catch (ModelNotFoundException $e) {
+            
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
     /**
@@ -88,8 +94,18 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->repository->update($request->all(), $id);
-        return $this->repository->find($id);
+        try {
+
+            $this->repository->update($request->all(), $id);
+            return $this->repository->find($id);
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
     /**
@@ -100,6 +116,16 @@ class ProjectController extends Controller
      */
     public function destroy($id)
     {
-        $this->repository->find($id)->delete();
+        try {
+
+            $this->repository->find($id)->delete();
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 }
