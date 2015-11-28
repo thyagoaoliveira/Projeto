@@ -4,7 +4,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('client', 'ClientController@index');
+Route::get('client', ['middleware'=>'oauth', 'uses'=>'ClientController@index']);
 Route::post('client', 'ClientController@store');
 Route::get('client/{id}', 'ClientController@show');
 Route::put('client/{id}', 'ClientController@update');
