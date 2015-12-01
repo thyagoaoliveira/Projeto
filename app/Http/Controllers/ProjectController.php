@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Repositories\ProjectRepository;
 use Projeto\Services\ProjectService;
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 class ProjectController extends Controller
 {
@@ -74,6 +75,11 @@ class ProjectController extends Controller
     {
         try {
             
+            $userId = Authorizer::getResourceOwnerId();
+            if($this->repository->isOwner($id, $userId) == false) {
+                return ['success'=>false];
+            }
+
             return $this->repository->with(['owner', 'client'])->find($id);
         
         }catch (ModelNotFoundException $e) {
