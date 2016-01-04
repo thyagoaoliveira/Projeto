@@ -3,6 +3,7 @@
 namespace Projeto\Services;
 
 use Projeto\Repositories\ProjectRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Validators\ProjectValidator;
 use Prettus\Validator\Exceptions\ValidatorException;
 
@@ -57,14 +58,70 @@ class ProjectService
     	try {
     		
             $this->validator->with($data)->passesOrFail();
-    		return $this->repository->update($data, $id);
-    	}
-    	catch (ValidatorException $e) {
+            $this->repository->update($data, $id);            
+            return $this->repository->find($id);
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        
+        }catch (ValidatorException $e) {
     		
             return [
     			'error' => true,
     			'message' => $e->getMessageBag()
     		];
-    	}    	
+    	} 
     }
+
+    public function isMember($projectId, $memberId)
+    {        
+        $result = $this->repository->find($projectId)->members()->where('user_id', $memberId)->get();
+
+        if(isset($result) && count($result) == 1) {
+            
+            return true;
+        
+        }else {
+
+            return false;
+        
+        }
+    }
+
+    public function addMember($projectId, $memberId)
+    {
+        if(!$this->isMember($projectId, $memberId)) {
+
+            $this->repository->find($projectId)->members()->attach($memberId);
+            return $this->repository->with(['members'])->find($projectId);
+        }
+        else {
+
+            return[ 
+                'error' => true,
+                'message' => 'Usuário já é um membro.'
+            ];
+        }   
+    }
+
+    public function removeMember($projectId, $memberId)
+    {
+        if($this->isMember($projectId, $memberId)) {
+
+            $this->repository->find($projectId)->members()->detach($memberId);
+            return $this->repository->with(['members'])->find($projectId);
+        }
+        else {
+
+            return[ 
+                'error' => true,
+                'message' => 'Membro inexistente.'
+            ];
+        }   
+    }
+    
 }

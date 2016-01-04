@@ -97,8 +97,7 @@ class ClientController extends Controller
     {        
         try {
 
-            $this->repository->update($request->all(), $id);
-            return $this->repository->find($id);
+            return $this->service->update($request->all(), $id);
 
         }catch(ModelNotFoundException $e) {
 

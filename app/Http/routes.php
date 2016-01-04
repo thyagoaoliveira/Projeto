@@ -19,5 +19,15 @@ Route::group(['middleware' => 'oauth'], function() {
 		Route::get('{id}/note/{noteId}', 'ProjectNoteController@show');
 		Route::put('{id}/note/{noteId}', 'ProjectNoteController@update');
 		Route::delete('note/{noteId}', 'ProjectNoteController@destroy');
+
+		Route::get('{id}/task', 'ProjectTaskController@index');
+		Route::post('{id}/task', 'ProjectTaskController@store');
+		Route::get('{id}/task/{taskId}', 'ProjectTaskController@show');
+		Route::put('{id}/task/{taskId}', 'ProjectTaskController@update');
+		Route::delete('task/{taskId}', 'ProjectTaskController@destroy');
+
+		Route::get('{id}/member', 'ProjectController@showMember');
+		Route::post('{id}/member/{memberId}', 'ProjectController@addMember');
+		Route::delete('{id}/member/{memberId}', 'ProjectController@removeMember');
 	});
 });

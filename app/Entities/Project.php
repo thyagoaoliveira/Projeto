@@ -5,10 +5,11 @@ namespace Projeto\Entities;
 use Illuminate\Database\Eloquent\Model;
 use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Traits\TransformableTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model implements Transformable
 {
-    use TransformableTrait;
+    use TransformableTrait, SoftDeletes;
 
     protected $fillable = [
     	'owner_id',
@@ -19,6 +20,8 @@ class Project extends Model implements Transformable
     	'status',
     	'due_date'
     ];
+
+    protected $dates = ['deleted_at'];
 
     public function client()
     {
@@ -33,6 +36,16 @@ class Project extends Model implements Transformable
     public function notes()
     {
     	return $this->hasMany(ProjectNote::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(ProjectTask::class);
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'project_members');
     }
 
 }

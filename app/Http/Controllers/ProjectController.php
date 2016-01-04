@@ -41,7 +41,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return $this->repository->with(['owner', 'client'])->all();
+        return $this->repository->with(['owner', 'client', 'members'])->all();
     }
 
     /**
@@ -100,18 +100,7 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-
-            $this->repository->update($request->all(), $id);
-            return $this->repository->find($id);
-
-        }catch(ModelNotFoundException $e) {
-
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
-        }
+        return $this->service->update($request->all(), $id);
     }
 
     /**
@@ -124,7 +113,7 @@ class ProjectController extends Controller
     {
         try {
 
-            $this->repository->find($id)->delete();
+            $this->repository->find($id)->softdelete();
 
         }catch(ModelNotFoundException $e) {
 
@@ -133,5 +122,30 @@ class ProjectController extends Controller
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    public function addMember($id, $memberId)
+    {
+        return $this->service->addMember($id, $memberId);
+    }
+
+    public function showMember($id)
+    {
+        try {
+            
+            return $this->repository->with('members')->find($id);
+        
+        }catch (ModelNotFoundException $e) {
+            
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function removeMember($id, $memberId)
+    {
+        return $this->service->removeMember($id, $memberId);
     }
 }

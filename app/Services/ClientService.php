@@ -57,7 +57,8 @@ class ClientService
     	try {
     		
             $this->validator->with($data)->passesOrFail();
-    		return $this->repository->update($data, $id);
+    		$this->repository->update($data, $id);
+            return $this->repository->find($id);
     	
         }catch (ValidatorException $e) {
     		
