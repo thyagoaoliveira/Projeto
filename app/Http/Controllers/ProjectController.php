@@ -34,6 +34,12 @@ class ProjectController extends Controller
         $this->service = $service;
     }
 
+    private function checkProjectOwner($projectId)
+    {
+        $userId = Authorizer::getResourceOwnerId();        
+        return $this->repository->isOwner($projectId, $userId);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -41,7 +47,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return $this->repository->with(['owner', 'client', 'members'])->all();
+        //return $this->repository->with(['owner', 'client', 'members'])->all();
+        return $this->repository->with(['owner', 'client', 'members'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
     }
 
     /**
@@ -80,6 +87,11 @@ class ProjectController extends Controller
                 return ['success'=>false];
             }*/
 
+            if($this->checkProjectOwner($id) == false)
+            {
+                return ['error'=>'Acesso negado.'];
+            }
+
             return $this->repository->with(['owner', 'client'])->find($id);
         
         }catch (ModelNotFoundException $e) {
@@ -112,6 +124,11 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         try {
+
+            if($this->checkProjectOwner($id) == false)
+            {
+                return ['error'=>'Acesso negado.'];
+            }
 
             $this->repository->find($id)->softdelete();
 
@@ -148,4 +165,5 @@ class ProjectController extends Controller
     {
         return $this->service->removeMember($id, $memberId);
     }
+
 }
