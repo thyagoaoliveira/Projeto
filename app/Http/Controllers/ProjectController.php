@@ -75,10 +75,10 @@ class ProjectController extends Controller
     {
         try {
             
-            $userId = Authorizer::getResourceOwnerId();
+            /*$userId = Authorizer::getResourceOwnerId();
             if($this->repository->isOwner($id, $userId) == false) {
                 return ['success'=>false];
-            }
+            }*/
 
             return $this->repository->with(['owner', 'client'])->find($id);
         
