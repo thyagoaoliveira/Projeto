@@ -77,24 +77,9 @@ class ProjectService
     	} 
     }
 
-    public function isMember($projectId, $memberId)
-    {        
-        $result = $this->repository->find($projectId)->members()->where('user_id', $memberId)->get();
-
-        if(isset($result) && count($result) == 1) {
-            
-            return true;
-        
-        }else {
-
-            return false;
-        
-        }
-    }
-
     public function addMember($projectId, $memberId)
     {
-        if(!$this->isMember($projectId, $memberId)) {
+        if(!$this->repository->isMember($projectId, $memberId)) {
 
             $this->repository->find($projectId)->members()->attach($memberId);
             return $this->repository->with(['members'])->find($projectId);
@@ -110,7 +95,7 @@ class ProjectService
 
     public function removeMember($projectId, $memberId)
     {
-        if($this->isMember($projectId, $memberId)) {
+        if($this->repository->isMember($projectId, $memberId)) {
 
             $this->repository->find($projectId)->members()->detach($memberId);
             return $this->repository->with(['members'])->find($projectId);

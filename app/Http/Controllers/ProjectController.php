@@ -40,6 +40,22 @@ class ProjectController extends Controller
         return $this->repository->isOwner($projectId, $userId);
     }
 
+    private function checkProjectMember($projectId)
+    {
+        $userId = Authorizer::getResourceOwnerId();        
+        return $this->repository->isMember($projectId, $userId);
+    }
+
+    private function checkProjectPermissions($projectId)
+    {
+        if($this->checkProjectOwner($projectId) or $this->checkProjectMember($projectId))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -87,7 +103,7 @@ class ProjectController extends Controller
                 return ['success'=>false];
             }*/
 
-            if($this->checkProjectOwner($id) == false)
+            if($this->checkProjectPermissions($id) == false)
             {
                 return ['error'=>'Acesso negado.'];
             }
