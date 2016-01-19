@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ff719710a754465dbe3636b1323d361e",
-    "content-hash": "c6a5ab52ec3d4393deb019d450dd68d4",
+    "hash": "1086229c8244fd319caf0c5c20d6ad94",
+    "content-hash": "6a1f19b7fb10e5cc50bd432b103465e6",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -500,7 +500,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/event/zipball/45a180b4f987ff73839054403ae69dabc14e8cbd",
+                "url": "https://api.github.com/repos/thephpleague/event/zipball/36920cc97c1e506b07f979337a49c4dd02d57045",
                 "reference": "45a180b4f987ff73839054403ae69dabc14e8cbd",
                 "shasum": ""
             },
@@ -620,6 +620,69 @@
                 "storage"
             ],
             "time": "2015-07-13 09:25:28"
+        },
+        {
+            "name": "league/fractal",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/fractal.git",
+                "reference": "0f33054fc409ecd947525c767326a5879b475304"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/fractal/zipball/0f33054fc409ecd947525c767326a5879b475304",
+                "reference": "0f33054fc409ecd947525c767326a5879b475304",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "illuminate/contracts": "~5.0",
+                "mockery/mockery": "~0.9",
+                "pagerfanta/pagerfanta": "~1.0.0",
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "~1.5",
+                "zendframework/zend-paginator": "~2.3"
+            },
+            "suggest": {
+                "illuminate/pagination": "The Illuminate Pagination component.",
+                "pagerfanta/pagerfanta": "Pagerfanta Paginator",
+                "zendframework/zend-paginator": "Zend Framework Paginator"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.13-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Fractal\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Phil Sturgeon",
+                    "email": "me@philsturgeon.uk",
+                    "homepage": "http://philsturgeon.uk/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Handle the output of complex data structures ready for API output.",
+            "homepage": "http://fractal.thephpleague.com/",
+            "keywords": [
+                "api",
+                "json",
+                "league",
+                "rest"
+            ],
+            "time": "2016-01-19 13:06:34"
         },
         {
             "name": "league/oauth2-server",
