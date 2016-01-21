@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Repositories\ProjectRepository;
 use Projeto\Services\ProjectService;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
-use Storage;
-use File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ProjectFileController extends Controller
 {
@@ -89,7 +89,11 @@ class ProjectFileController extends Controller
     {
         $file = $request->file('file');
         $extension = $file->getClientOriginalExtension();
-        Storage::put($request->name.'.'.$extension, File::get($file));
+        $data['file'] = $file;
+        $data['extension'] = $extension;
+        $data['name'] = $request->name;
+
+        $this->service->createFile($data);
     }
 
     /**

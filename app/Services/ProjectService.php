@@ -6,6 +6,8 @@ use Projeto\Repositories\ProjectRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Validators\ProjectValidator;
 use Prettus\Validator\Exceptions\ValidatorException;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ProjectService
 {
@@ -107,6 +109,11 @@ class ProjectService
                 'message' => 'Membro inexistente.'
             ];
         }   
+    }
+
+    public function createFile(array $data)
+    {
+        Storage::put($data['name'].'.'.$data['extension'], File::get($data['file']));
     }
     
 }
