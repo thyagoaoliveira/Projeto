@@ -3,6 +3,7 @@
 namespace Projeto\Repositories;
 
 use Prettus\Repository\Eloquent\BaseRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Projeto\Repositories\ProjectRepository;
 use Projeto\Entities\Project;
@@ -34,19 +35,22 @@ class ProjectRepositoryEloquent extends BaseRepository implements ProjectReposit
 
     public function isOwner($projectId, $userId)
     {
-        if(count($this->findwhere(['id' => $projectId, 'owner_id' => $userId])))
+        if(count($this->skipPresenter(true)->findwhere(['id' => $projectId, 'owner_id' => $userId])))
         {
+            $this->skipPresenter(false);
             return true;
         }
+
         return false;
     }
 
     public function isMember($projectId, $memberId)
     {
-        $result = $this->find($projectId)->members()->where('user_id', $memberId)->get();
+        $result = $this->skipPresenter(true)->find($projectId)->members()->where('user_id', $memberId)->get();
 
         if(isset($result) && count($result) == 1) {
             
+            $this->skipPresenter(false);
             return true;
         
         }else {

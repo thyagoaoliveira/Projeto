@@ -24,15 +24,19 @@ class ProjectTaskController extends Controller
      */
     private $service;
 
+
+    private $project;
+
     /**
      * [__construct description]
      * @param ProjectTaskRepository $repository [description]
      * @param ProjectTaskService    $service    [description]
      */
-    public function __construct(ProjectTaskRepository $repository, ProjectTaskService $service)
+    public function __construct(ProjectTaskRepository $repository, ProjectTaskService $service, ProjectRepository $project)
     {
         $this->repository = $repository;
         $this->service = $service;
+        $this->project = $project;
     }
 
     /**
@@ -40,27 +44,9 @@ class ProjectTaskController extends Controller
      *
      * @return Response
      */
-    public function index($id, ProjectRepository $project)
+    public function index()
     {
-        $userId = Authorizer::getResourceOwnerId();
-
-        if($project->isOwner($id, $userId) == false) {
-            
-            return ['success'=>false];
-        }
-        
-        $result = $this->repository->findWhere(['project_id'=>$id]);
-
-        if(isset($result) && count($result) > 0) {
-            
-            return $result;
-        }else {
-
-            return[ 
-                'error' => true,
-                'message' => 'Registro não encontrado.'
-            ];
-        }
+        return $this->project->skipPresenter(true)->with(['tasks'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
     }
 
     /**
@@ -79,9 +65,9 @@ class ProjectTaskController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $projectId)
     {
-        return $this->service->create($request->all());
+        return $this->service->create($request->all(), $projectId);
     }
 
     /**
@@ -90,27 +76,9 @@ class ProjectTaskController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function show($id, $taskId, ProjectRepository $project)
+    public function show($projectId, $taskId)
     {
-        $userId = Authorizer::getResourceOwnerId();
-
-        if($project->isOwner($id, $userId) == false) {
-            
-            return ['success'=>false];
-        }
-        
-        $result = $this->repository->with('project')->findWhere(['id'=>$taskId, 'project_id'=>$id]);
-
-        if(isset($result) && count($result) == 1) {
-            
-            return $result;
-        }else {
-
-            return[ 
-                'error' => true,
-                'message' => 'Registro não encontrado.'
-            ];
-        }
+        return $this->service->show($projectId, $taskId);
     }
 
     /**
@@ -120,10 +88,9 @@ class ProjectTaskController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function update(Request $request, $taskId)
+    public function update(Request $request, $projectId, $taskId)
     {
-        $this->repository->update($request->all(), $taskId);
-        return $this->repository->find($taskId);
+        return $this->service->update($request->all(), $projectId, $taskId);
     }
 
     /**
@@ -132,8 +99,8 @@ class ProjectTaskController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($taskId)
+    public function destroy($projectId, $taskId)
     {
-        $this->repository->find($taskId)->delete();
+        return $this->service->destroy($projectId, $taskId);
     }
 }

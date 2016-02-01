@@ -10,6 +10,7 @@ use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 class ProjectController extends Controller
 {
+
     /**
      * [$repository description]
      * 
@@ -98,11 +99,6 @@ class ProjectController extends Controller
     {
         try {
             
-            /*$userId = Authorizer::getResourceOwnerId();
-            if($this->repository->isOwner($id, $userId) == false) {
-                return ['success'=>false];
-            }*/
-
             if($this->checkProjectPermissions($id) == false)
             {
                 return ['error'=>'Acesso negado.'];
@@ -141,12 +137,16 @@ class ProjectController extends Controller
     {
         try {
 
-            if($this->checkProjectOwner($id) == false)
+            $this->repository->find($id);
+            
+            if($this->checkProjectOwner($id))
             {
-                return ['error'=>'Acesso negado.'];
+                $this->repository->skipPresenter(true)->find($id)->delete();
+                $this->repository->skipPresenter(false);
+                return 'Project_id: ' . $id . ' deletado.';
             }
 
-            $this->repository->find($id)->softdelete();
+            return ['error'=>'Acesso negado.'];            
 
         }catch(ModelNotFoundException $e) {
 
@@ -159,6 +159,11 @@ class ProjectController extends Controller
 
     public function addMember($id, $memberId)
     {
+        if($this->checkProjectOwner($id) == false)
+        {
+            return ['error'=>'Acesso negado.'];
+        }
+
         return $this->service->addMember($id, $memberId);
     }
 
@@ -166,6 +171,11 @@ class ProjectController extends Controller
     {
         try {
             
+            if($this->checkProjectOwner($id) == false)
+            {
+                return ['error'=>'Acesso negado.'];
+            }
+
             return $this->repository->with('members')->find($id);
         
         }catch (ModelNotFoundException $e) {
@@ -179,6 +189,11 @@ class ProjectController extends Controller
 
     public function removeMember($id, $memberId)
     {
+        if($this->checkProjectOwner($id) == false)
+        {
+            return ['error'=>'Acesso negado.'];
+        }
+
         return $this->service->removeMember($id, $memberId);
     }
 

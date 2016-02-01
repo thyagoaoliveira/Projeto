@@ -4,7 +4,9 @@ namespace Projeto\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Projeto\Repositories\ProjectNoteRepository;
+use Projeto\Repositories\ProjectRepository;
 use Projeto\Services\ProjectNoteService;
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 class ProjectNoteController extends Controller
 {
@@ -21,15 +23,19 @@ class ProjectNoteController extends Controller
      */
     private $service;
 
+
+    private $project;
+
     /**
      * [__construct description]
      * @param ProjectNoteRepository $repository [description]
      * @param ProjectNoteService    $service    [description]
      */
-    public function __construct(ProjectNoteRepository $repository, ProjectNoteService $service)
+    public function __construct(ProjectNoteRepository $repository, ProjectNoteService $service, ProjectRepository $project)
     {
         $this->repository = $repository;
         $this->service = $service;
+        $this->project = $project;
     }
 
     /**
@@ -39,7 +45,8 @@ class ProjectNoteController extends Controller
      */
     public function index($id)
     {
-        return $this->repository->findWhere(['project_id'=>$id]);
+        //return $this->repository->findWhere(['project_id'=>$id]);
+        return $this->project->skipPresenter(true)->with(['notes'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
     }
 
     /**
@@ -58,9 +65,9 @@ class ProjectNoteController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $projectId)
     {
-        return $this->service->create($request->all());
+        return $this->service->create($request->all(), $projectId);
     }
 
     /**
@@ -69,9 +76,10 @@ class ProjectNoteController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function show($id, $noteId)
+    public function show($projectId, $noteId)
     {
-        return $this->repository->findWhere(['project_id'=>$id, 'id'=>$noteId]);
+        //return $this->repository->findWhere(['project_id'=>$id, 'id'=>$noteId]);
+        return $this->service->show($projectId, $noteId);
     }
 
     /**
@@ -81,10 +89,9 @@ class ProjectNoteController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function update(Request $request, $id, $noteId)
+    public function update(Request $request, $projectId, $noteId)
     {
-        $this->repository->update($request->all(), $noteId);
-        return $this->repository->find($noteId);
+        return $this->service->update($request->all(), $projectId, $noteId);
     }
 
     /**
@@ -93,8 +100,8 @@ class ProjectNoteController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($id, $noteId)
+    public function destroy($projectId, $noteId)
     {
-        $this->repository->find($noteId)->delete();
+        return $this->service->destroy($projectId, $noteId);
     }
 }

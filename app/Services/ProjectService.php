@@ -8,6 +8,7 @@ use Projeto\Validators\ProjectValidator;
 use Prettus\Validator\Exceptions\ValidatorException;
 use Illuminate\Contracts\Filesystem\Factory as Storage;
 use Illuminate\Filesystem\Filesystem;
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 class ProjectService
 {
@@ -36,6 +37,28 @@ class ProjectService
         $this->storage = $storage;
     }
 
+    private function checkProjectOwner($projectId)
+    {
+        $userId = Authorizer::getResourceOwnerId();        
+        return $this->repository->isOwner($projectId, $userId);
+    }
+
+    private function checkProjectMember($projectId)
+    {
+        $userId = Authorizer::getResourceOwnerId();        
+        return $this->repository->isMember($projectId, $userId);
+    }
+
+    private function checkProjectPermissions($projectId)
+    {
+        if($this->checkProjectOwner($projectId) or $this->checkProjectMember($projectId))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * [create description]
      * @param  array  $data [description]
@@ -61,9 +84,16 @@ class ProjectService
     {
     	try {
     		
-            $this->validator->with($data)->passesOrFail();
-            $this->repository->update($data, $id);            
-            return $this->repository->find($id);
+            $this->repository->find($id);
+                       
+            if($this->checkProjectPermissions($id))
+            {
+                $this->validator->with($data)->passesOrFail();
+                $this->repository->update($data, $id);
+                return $this->repository->find($id);
+            }               
+            
+            return ['error'=>'Acesso negado.'];
 
         }catch(ModelNotFoundException $e) {
 
@@ -78,7 +108,9 @@ class ProjectService
     			'error' => true,
     			'message' => $e->getMessageBag()
     		];
-    	} 
+    	}
+
+        
     }
 
     public function addMember($projectId, $memberId)
