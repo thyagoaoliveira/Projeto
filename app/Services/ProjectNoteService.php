@@ -59,6 +59,27 @@ class ProjectNoteService
         return false;
     }
 
+    public function index($projectId)
+    {
+        try {
+            
+            if($this->checkProjectPermissions($projectId))
+            {
+                return $this->repository->findwhere(['project_id' => $projectId]);
+            }               
+            
+            return ['error'=>'Acesso negado.'];
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        
+        }
+    }
+
     /**
      * [create description]
      * @param  array  $data [description]
@@ -66,25 +87,17 @@ class ProjectNoteService
      */
     public function create(array $data, $projectId)
     {
-    	/*try {
-    		$this->validator->with($data)->passesOrFail();
-    		return $this->repository->create($data);
-    	}
-    	catch (ValidatorException $e) {
-    		return [
-    			'error' => true,
-    			'message' => $e->getMessageBag()
-    		];
-    	}*/
-
-        try {
+    	try {
             
-            $this->project->find($projectId);
-                       
-            if($this->checkProjectPermissions($projectId) and $data['project_id'] == $projectId)
+            if($this->checkProjectPermissions($projectId))
             {
-                $this->validator->with($data)->passesOrFail();
-                return $this->repository->create($data);
+                if($data['project_id'] == $projectId)
+                {
+                    $this->validator->with($data)->passesOrFail();
+                    return $this->repository->create($data);
+                }
+
+                return ['error'=>'ID divergente do Projeto.'];                
             }               
             
             return ['error'=>'Acesso negado.'];
@@ -108,70 +121,67 @@ class ProjectNoteService
 
     public function show($projectId, $noteId)
     {
-        if($this->checkProjectPermissions($projectId))
-        {
-            if(count($this->repository->skipPresenter(true)->findwhere(['id' => $noteId, 'project_id' => $projectId])))
-            {
-                $this->repository->skipPresenter(false);                
-                return $this->repository->findwhere(['id' => $noteId, 'project_id' => $projectId]);
-            }
-
-            return ['error'=>'Nota não encontrada neste Projeto.'];
-        }               
-        
-        return ['error'=>'Acesso negado.'];
-    }
-
-    public function update(array $data, $projectId, $noteId)
-    {
-    	/*try {
-    		$this->validator->with($data)->passesOrFail();
-    		return $this->repository->update($data, $id);
-    	}
-    	catch (ValidatorException $e) {
-    		return [
-    			'error' => true,
-    			'message' => $e->getMessageBag()
-    		];
-    	}*/
-
         try {
-
-            $this->project->find($projectId);
 
             if($this->checkProjectPermissions($projectId))
             {
-                if(count($this->repository->skipPresenter(true)->findwhere(['id' => $noteId, 'project_id' => $projectId])))
-                {
-                    
-                    if($data['project_id'] == $projectId)
-                    {
-                        try {
+                $result = $this->repository->skipPresenter(true)->findwhere(['id' => $noteId, 'project_id' => $projectId]);
+                $this->repository->skipPresenter(false);
 
-                            $this->validator->with($data)->passesOrFail();
-                            $this->repository->update($data, $noteId);
-                            $this->repository->skipPresenter(false);
-                            return $this->repository->find($noteId);
-
-                        }catch (ValidatorException $e) {
-                    
-                            return [
-                                'error' => true,
-                                'message' => $e->getMessageBag()
-                            ];
-                        }
-                        
-                    }
-                    
-                    return ['error'=>'ID da Nota divergente.'];
+                if(count($result))
+                {               
+                    return $this->repository->findwhere(['id' => $noteId, 'project_id' => $projectId]);
                 }
 
-                $this->repository->skipPresenter(false);
                 return ['error'=>'Nota não encontrada neste Projeto.'];
             }               
             
             return ['error'=>'Acesso negado.'];
 
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        
+        }
+        
+    }
+
+    public function update(array $data, $projectId, $noteId)
+    {
+    	try {
+
+            if($this->checkProjectPermissions($projectId))
+            {
+                $result = $this->repository->skipPresenter(true)->findwhere(['id' => $noteId, 'project_id' => $projectId]);
+                $this->repository->skipPresenter(false);
+                
+                if(count($result))
+                {                    
+                    if($data['project_id'] == $projectId)
+                    {
+                        $this->validator->with($data)->passesOrFail();
+                        $this->repository->update($data, $noteId);
+                        return $this->repository->find($noteId);                        
+                    }
+                    
+                    return ['error'=>'ID da Nota divergente.'];
+                }
+
+                return ['error'=>'Nota não encontrada neste Projeto.'];
+            }               
+            
+            return ['error'=>'Acesso negado.'];
+
+        }catch (ValidatorException $e) {
+                    
+            return [
+                'error' => true,
+                'message' => $e->getMessageBag()
+            ];
+        
         }catch(ModelNotFoundException $e) {
 
             return [
@@ -187,14 +197,14 @@ class ProjectNoteService
     {              
         try {
 
-            $this->project->find($projectId);
-
             if($this->checkProjectPermissions($projectId))
             {
-                if(count($this->repository->skipPresenter(true)->findwhere(['id' => $noteId, 'project_id' => $projectId])))
-                {
+                $result = $this->repository->skipPresenter(true)->findwhere(['id' => $noteId, 'project_id' => $projectId]);
+                
+                if(count($result))
+                {                    
                     $this->repository->find($noteId)->delete();
-                    $this->repository->skipPresenter(false);                
+                    $this->repository->skipPresenter(false);             
                     return ['success'=>'Deletado.'];
                 }
 
@@ -202,6 +212,7 @@ class ProjectNoteService
             }               
             
             return ['error'=>'Acesso negado.'];
+
         }catch(ModelNotFoundException $e) {
 
             return [
@@ -210,5 +221,6 @@ class ProjectNoteService
             ];
         
         }
+
     }
 }

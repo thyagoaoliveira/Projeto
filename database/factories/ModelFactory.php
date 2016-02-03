@@ -60,3 +60,11 @@ $factory->define(Projeto\Entities\ProjectTask::class, function (Faker\Generator 
         'status' => rand(1,3)       
     ];
 });
+
+$factory->define(Projeto\Entities\OAuthClient::class, function (Faker\Generator $faker) {
+    return [
+        'id' => $faker->word,
+        'secret' => $faker->word,
+        'name' => $faker->name       
+    ];
+});

@@ -25,14 +25,18 @@ class ProjectService
 	 */
     protected $validator;
 
+
+    protected $validatorFile;
+
     /**
      * [__construct description]
      * @param ProjectRepository $repository [description]
      */
-    public function __construct(ProjectRepository $repository, ProjectValidator $validator, Filesystem $filesystem, Storage $storage)
+    public function __construct(ProjectRepository $repository, ProjectValidator $validator, Filesystem $filesystem, Storage $storage, ProjectFileValidator $validatorFile)
     {
         $this->repository = $repository;
         $this->validator = $validator;
+        $this->validatorFile = $validatorFile;
         $this->filesystem = $filesystem;
         $this->storage = $storage;
     }
@@ -147,9 +151,21 @@ class ProjectService
 
     public function createFile(array $data)
     {
-        $project = $this->repository->skipPresenter()->find($data['project_id']);
-        $projectFile = $project->files()->create($data);
-        $this->storage->put($projectFile->id.'.'.$data['extension'], $this->filesystem->get($data['file']));
+        try {
+            
+            $project = $this->repository->skipPresenter()->find($data['project_id']);
+            $this->validatorFile->with($data)->passesOrFail();
+            $projectFile = $project->files()->create($data);
+            $this->storage->put($projectFile->id.'.'.$data['extension'], $this->filesystem->get($data['file']));
+            
+        }
+        catch (ValidatorException $e) {
+            
+            return [
+                'error' => true,
+                'message' => $e->getMessageBag()
+            ];
+        }
     }
     
 }

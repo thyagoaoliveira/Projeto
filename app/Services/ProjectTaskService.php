@@ -59,6 +59,27 @@ class ProjectTaskService
         return false;
     }
 
+    public function index($projectId)
+    {
+        try {
+            
+            if($this->checkProjectPermissions($projectId))
+            {
+                return $this->repository->findwhere(['project_id' => $projectId]);
+            }               
+            
+            return ['error'=>'Acesso negado.'];
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        
+        }
+    }
+
     /**
      * [create description]
      * @param  array  $data [description]
@@ -66,25 +87,17 @@ class ProjectTaskService
      */
     public function create(array $data, $projectId)
     {
-        /*try {
-            $this->validator->with($data)->passesOrFail();
-            return $this->repository->create($data);
-        }
-        catch (ValidatorException $e) {
-            return [
-                'error' => true,
-                'message' => $e->getMessageBag()
-            ];
-        }*/
-
         try {
             
-            $this->project->find($projectId);
-                       
-            if($this->checkProjectPermissions($projectId) and $data['project_id'] == $projectId)
+            if($this->checkProjectPermissions($projectId))
             {
-                $this->validator->with($data)->passesOrFail();
-                return $this->repository->create($data);
+                if($data['project_id'] == $projectId)
+                {
+                    $this->validator->with($data)->passesOrFail();
+                    return $this->repository->create($data);
+                }
+
+                return ['error'=>'ID divergente do Projeto.'];                
             }               
             
             return ['error'=>'Acesso negado.'];
@@ -108,70 +121,66 @@ class ProjectTaskService
 
     public function show($projectId, $taskId)
     {
-        if($this->checkProjectPermissions($projectId))
-        {
-            if(count($this->repository->skipPresenter(true)->findwhere(['id' => $taskId, 'project_id' => $projectId])))
-            {
-                $this->repository->skipPresenter(false);                
-                return $this->repository->findwhere(['id' => $taskId, 'project_id' => $projectId]);
-            }
-
-            return ['error'=>'Task não encontrada neste Projeto.'];
-        }               
-        
-        return ['error'=>'Acesso negado.'];
-    }
-
-    public function update(array $data, $projectId, $taskId)
-    {
-        /*try {
-            $this->validator->with($data)->passesOrFail();
-            return $this->repository->update($data, $id);
-        }
-        catch (ValidatorException $e) {
-            return [
-                'error' => true,
-                'message' => $e->getMessageBag()
-            ];
-        }*/
-
         try {
-
-            $this->project->find($projectId);
 
             if($this->checkProjectPermissions($projectId))
             {
-                if(count($this->repository->skipPresenter(true)->findwhere(['id' => $taskId, 'project_id' => $projectId])))
-                {
-                    
-                    if($data['project_id'] == $projectId)
-                    {
-                        try {
+                $result = $this->repository->skipPresenter(true)->findwhere(['id' => $taskId, 'project_id' => $projectId]);
+                $this->repository->skipPresenter(false);
 
-                            $this->validator->with($data)->passesOrFail();
-                            $this->repository->update($data, $taskId);
-                            $this->repository->skipPresenter(false);
-                            return $this->repository->find($taskId);
-
-                        }catch (ValidatorException $e) {
-                    
-                            return [
-                                'error' => true,
-                                'message' => $e->getMessageBag()
-                            ];
-                        }
-                        
-                    }
-                    
-                    return ['error'=>'ID da Task divergente.'];
+                if(count($result))
+                {               
+                    return $this->repository->findwhere(['id' => $taskId, 'project_id' => $projectId]);
                 }
 
-                $this->repository->skipPresenter(false);
                 return ['error'=>'Task não encontrada neste Projeto.'];
             }               
             
             return ['error'=>'Acesso negado.'];
 
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        
+        }
+    }
+
+    public function update(array $data, $projectId, $taskId)
+    {
+        try {
+
+            if($this->checkProjectPermissions($projectId))
+            {
+                $result = $this->repository->skipPresenter(true)->findwhere(['id' => $taskId, 'project_id' => $projectId]);
+                $this->repository->skipPresenter(false);
+                
+                if(count($result))
+                {                    
+                    if($data['project_id'] == $projectId)
+                    {
+                        $this->validator->with($data)->passesOrFail();
+                        $this->repository->update($data, $taskId);
+                        return $this->repository->find($taskId);                        
+                    }
+                    
+                    return ['error'=>'ID da Task divergente.'];
+                }
+
+                return ['error'=>'Task não encontrada neste Projeto.'];
+            }               
+            
+            return ['error'=>'Acesso negado.'];
+
+        }catch (ValidatorException $e) {
+                    
+            return [
+                'error' => true,
+                'message' => $e->getMessageBag()
+            ];
+        
         }catch(ModelNotFoundException $e) {
 
             return [
@@ -188,14 +197,14 @@ class ProjectTaskService
         
         try {
 
-            $this->project->find($projectId);
-
             if($this->checkProjectPermissions($projectId))
             {
-                if(count($this->repository->skipPresenter(true)->findwhere(['id' => $taskId, 'project_id' => $projectId])))
-                {
+                $result = $this->repository->skipPresenter(true)->findwhere(['id' => $taskId, 'project_id' => $projectId]);
+                
+                if(count($result))
+                {                    
                     $this->repository->find($taskId)->delete();
-                    $this->repository->skipPresenter(false);                
+                    $this->repository->skipPresenter(false);             
                     return ['success'=>'Deletado.'];
                 }
 
@@ -203,7 +212,7 @@ class ProjectTaskService
             }               
             
             return ['error'=>'Acesso negado.'];
-            
+
         }catch(ModelNotFoundException $e) {
 
             return [

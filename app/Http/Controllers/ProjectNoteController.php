@@ -43,10 +43,10 @@ class ProjectNoteController extends Controller
      *
      * @return Response
      */
-    public function index($id)
+    public function index($projectId)
     {
-        //return $this->repository->findWhere(['project_id'=>$id]);
-        return $this->project->skipPresenter(true)->with(['notes'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
+        //return $this->project->skipPresenter(true)->with(['tasks'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
+        return $this->service->index($projectId);
     }
 
     /**

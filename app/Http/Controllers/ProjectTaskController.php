@@ -44,9 +44,10 @@ class ProjectTaskController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index($projectId)
     {
-        return $this->project->skipPresenter(true)->with(['tasks'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
+        //return $this->project->skipPresenter(true)->with(['tasks'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
+        return $this->service->index($projectId);
     }
 
     /**
