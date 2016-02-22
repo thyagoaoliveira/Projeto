@@ -5,7 +5,8 @@ namespace Projeto\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Repositories\ProjectRepository;
-use Projeto\Services\ProjectService;
+use Projeto\Repositories\ProjectFileRepository;
+use Projeto\Services\ProjectFileService;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -15,37 +16,44 @@ class ProjectFileController extends Controller
     /**
      * [$repository description]
      * 
-     * @var ClientRepository
+     * @var ProjectFileRepository
      */
     private $repository;
 
     /**
      * [$service description]
-     * @var ProjectService
+     * @var ProjectFileService
      */
     private $service;
+
+    /**
+     * [$service description]
+     * @var ProjectRepository
+     */
+    private $project;
 
     /**
      * [__construct description]
      * @param ProjectRepository $repository [description]
      * @param ProjectService    $service    [description]
      */
-    public function __construct(ProjectRepository $repository, ProjectService $service)
+    public function __construct(ProjectFileRepository $repository, ProjectFileService $service, ProjectRepository $project)
     {
         $this->repository = $repository;
         $this->service = $service;
+        $this->project = $project;
     }
 
     private function checkProjectOwner($projectId)
     {
         $userId = Authorizer::getResourceOwnerId();        
-        return $this->repository->isOwner($projectId, $userId);
+        return $this->project->isOwner($projectId, $userId);
     }
 
     private function checkProjectMember($projectId)
     {
         $userId = Authorizer::getResourceOwnerId();        
-        return $this->repository->isMember($projectId, $userId);
+        return $this->project->isMember($projectId, $userId);
     }
 
     private function checkProjectPermissions($projectId)
@@ -59,87 +67,34 @@ class ProjectFileController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        //return $this->repository->with(['owner', 'client', 'members'])->all();
-        return $this->repository->with(['owner', 'client', 'members'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        // Não vai precisar por ora.
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $projectId)
     {
-        $file = $request->file('file');
-        $extension = $file->getClientOriginalExtension();
-
-        $data['file'] = $file;
-        $data['extension'] = $extension;
-        $data['name'] = $request->name;
-        $data['project_id'] = $request->project_id;       
-        $data['description'] = $request->description;    
-
-        $this->service->createFile($data);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        try {
-            
-            /*$userId = Authorizer::getResourceOwnerId();
-            if($this->repository->isOwner($id, $userId) == false) {
-                return ['success'=>false];
-            }*/
-
-            if($this->checkProjectPermissions($id) == false)
+        if(count($request->file('file')))
+        {
+            $file = $request->file('file');
+            /*$existe = Storage::exists('2.jpg');
+            if($existe)
             {
-                return ['error'=>'Acesso negado.'];
-            }
-
-            return $this->repository->with(['owner', 'client'])->find($id);
-        
-        }catch (ModelNotFoundException $e) {
+                return Storage::size('2.jpg');
+            }*/            
             
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
-        }
-    }
+            $extension = $file->getClientOriginalExtension();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
-    {
-        return $this->service->update($request->all(), $id);
+            $data['file'] = $file;
+            $data['extension'] = $extension;
+            $data['name'] = $request->name;
+            $data['description'] = $request->description;
+            $data['project_id'] = $projectId;
+
+            return $this->service->create($data);
+        }
+
+        return ['error'=>'Arquivo não selecionado.'];
     }
 
     /**
@@ -148,49 +103,9 @@ class ProjectFileController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($id)
+    public function destroy($projectId, $fileId)
     {
-        try {
-
-            if($this->checkProjectOwner($id) == false)
-            {
-                return ['error'=>'Acesso negado.'];
-            }
-
-            $this->repository->find($id)->softdelete();
-
-        }catch(ModelNotFoundException $e) {
-
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
-        }
-    }
-
-    public function addMember($id, $memberId)
-    {
-        return $this->service->addMember($id, $memberId);
-    }
-
-    public function showMember($id)
-    {
-        try {
-            
-            return $this->repository->with('members')->find($id);
-        
-        }catch (ModelNotFoundException $e) {
-            
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
-        }
-    }
-
-    public function removeMember($id, $memberId)
-    {
-        return $this->service->removeMember($id, $memberId);
+         return $this->service->destroy($projectId, $fileId);
     }
 
 }

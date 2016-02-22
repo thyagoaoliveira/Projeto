@@ -63,8 +63,8 @@ $factory->define(Projeto\Entities\ProjectTask::class, function (Faker\Generator 
 
 $factory->define(Projeto\Entities\OAuthClient::class, function (Faker\Generator $faker) {
     return [
-        'id' => $faker->word,
-        'secret' => $faker->word,
+        'id' => 'appid1',
+        'secret' => 'secret',
         'name' => $faker->name       
     ];
 });

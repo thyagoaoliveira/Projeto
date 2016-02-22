@@ -3,8 +3,10 @@
 namespace Projeto\Services;
 
 use Projeto\Repositories\ProjectRepository;
+use Projeto\Repositories\ProjectFileRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Projeto\Validators\ProjectValidator;
+use Projeto\Validators\ProjectFileValidator;
 use Prettus\Validator\Exceptions\ValidatorException;
 use Illuminate\Contracts\Filesystem\Factory as Storage;
 use Illuminate\Filesystem\Filesystem;
@@ -32,13 +34,14 @@ class ProjectService
      * [__construct description]
      * @param ProjectRepository $repository [description]
      */
-    public function __construct(ProjectRepository $repository, ProjectValidator $validator, Filesystem $filesystem, Storage $storage, ProjectFileValidator $validatorFile)
+    public function __construct(ProjectRepository $repository, ProjectValidator $validator, Filesystem $filesystem, Storage $storage, ProjectFileValidator $validatorFile, ProjectFileRepository $fileRepository)
     {
         $this->repository = $repository;
         $this->validator = $validator;
         $this->validatorFile = $validatorFile;
         $this->filesystem = $filesystem;
         $this->storage = $storage;
+        $this->fileRepository = $fileRepository;
     }
 
     private function checkProjectOwner($projectId)
@@ -151,6 +154,77 @@ class ProjectService
 
     public function createFile(array $data)
     {
+        /*try {
+            
+            $project = $this->repository->skipPresenter()->find($data['project_id']);
+            $this->validatorFile->with($data)->passesOrFail();
+            $projectFile = $project->files()->create($data);
+            $this->storage->put($projectFile->id.'.'.$data['extension'], $this->filesystem->get($data['file']));
+            
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }catch (ValidatorException $e) {
+            
+            return [
+                'error' => true,
+                'message' => $e->getMessageBag()
+            ];
+        }*/
+        
+        
+
+        try {
+            
+            $this->repository->find($data['project_id']);
+
+            if($this->checkProjectPermissions($data['project_id']))
+            {
+                /*$project = $this->repository->skipPresenter()->find($data['project_id']);
+                $this->validatorFile->with($data)->passesOrFail();
+                $projectFile = $project->files()->create($data);
+                $this->storage->put($projectFile->id.'.'.$data['extension'], $this->filesystem->get($data['file']));
+                return ['success'=>'Enviado.'];*/
+
+                
+                print_r($this->fileRepository->find(1));
+
+                //$name = $data['project_id'].'.'.$data['extension'];
+                //echo $name;
+                /*$exists = $this->storage->exists('3');
+                if($exists)
+                {
+                    return 'sim';
+                }
+                else
+                {
+                    return 'nao';
+                }*/
+            }               
+            
+            //return ['error'=>'Acesso negado.'];
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        
+        }catch (ValidatorException $e) {
+            
+            return [
+                'error' => true,
+                'message' => $e->getMessageBag()
+            ];
+        }
+    }
+
+    public function destroyFile(array $data)
+    {
         try {
             
             $project = $this->repository->skipPresenter()->find($data['project_id']);
@@ -158,12 +232,38 @@ class ProjectService
             $projectFile = $project->files()->create($data);
             $this->storage->put($projectFile->id.'.'.$data['extension'], $this->filesystem->get($data['file']));
             
-        }
-        catch (ValidatorException $e) {
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }catch (ValidatorException $e) {
             
             return [
                 'error' => true,
                 'message' => $e->getMessageBag()
+            ];
+        }
+
+        try {
+
+            $this->repository->find($id);
+            
+            if($this->checkProjectOwner($id))
+            {
+                $this->repository->skipPresenter(true)->find($id)->delete();
+                $this->repository->skipPresenter(false);
+                return 'Project_id: ' . $id . ' deletado.';
+            }
+
+            return ['error'=>'Acesso negado.'];            
+
+        }catch(ModelNotFoundException $e) {
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
             ];
         }
     }
