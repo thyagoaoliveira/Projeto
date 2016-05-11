@@ -148,6 +148,8 @@ return [
         Projeto\Providers\RouteServiceProvider::class,
         Projeto\Providers\ProjetoRepositoryProvider::class,
 
+        Bestmomo\Scafold\ScafoldServiceProvider::class,
+
     ],
 
     /*
