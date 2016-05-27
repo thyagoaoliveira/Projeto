@@ -118,7 +118,9 @@ class ClientController extends Controller
     {
         try {
 
-            $this->repository->find($id)->delete();
+            //$this->repository->find($id)->delete();
+            $this->repository->skipPresenter(true)->find($id)->delete();
+            $this->repository->skipPresenter(false);
 
         }catch(ModelNotFoundException $e) {
 
